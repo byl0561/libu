@@ -1,0 +1,14 @@
+# Keep host build artifacts out of the Docker build context.
+.git
+.idea
+.DS_Store
+docs
+
+frontend/node_modules
+frontend/dist
+
+backend/venv
+backend/data
+**/__pycache__
+*.py[cod]
+data
