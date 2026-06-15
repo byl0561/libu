@@ -46,3 +46,11 @@ PYTHONPATH=. ./venv/bin/uvicorn app.main:app --reload --port 8000
 cd frontend
 npm install && npm run dev   # 开发期 /api 代理到 127.0.0.1:8000
 ```
+
+## 许可证
+
+本项目采用 **[GNU General Public License v3.0](LICENSE)**。
+
+Copyright (C) 2026 byl0561
+
+本程序是自由软件：你可以依据自由软件基金会发布的 GNU GPL v3（或更新版本）重新分发和/或修改它。发布本程序是希望它有用，但**不附带任何担保**；详见 GPLv3 全文。
