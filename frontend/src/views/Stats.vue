@@ -27,11 +27,15 @@ const trendRows = computed(() => {
   const rows = []
   for (let m = lastMonth; m >= 1; m--) {
     const mm = String(m).padStart(2, '0')
-    rows.push(byMonth[mm] || { month: mm, in_cents: 0, out_cents: 0 })
+    const r = byMonth[mm] || { month: mm, in_cents: 0, out_cents: 0 }
+    rows.push({ ...r, net: r.in_cents - r.out_cents }) // 当月结余 = 收 - 送
   }
   return rows
 })
-const maxTrend = computed(() => Math.max(1, ...trendRows.value.map((t) => t.in_cents + t.out_cents)))
+// Bar length is keyed to the largest |结余| of the shown months, so the most
+// extreme month fills the track and color (pos/neg) carries the sign.
+const maxTrend = computed(() => Math.max(1, ...trendRows.value.map((t) => Math.abs(t.net))))
+const barPct = (t) => (Math.abs(t.net) / maxTrend.value) * 100
 // Bar = this member's share of the total record count.
 const memberTotal = computed(() => byMember.value.reduce((s, m) => s + m.count, 0) || 1)
 const mLabel = (m) => m + '月'
@@ -61,9 +65,9 @@ const mLabel = (m) => m + '月'
       <div v-for="t in trendRows" :key="t.month" class="row" style="gap:10px; margin:9px 0">
         <span class="muted fs-xs" style="width:46px">{{ mLabel(t.month) }}</span>
         <div class="bar-track">
-          <div class="bar-fill" :style="{ width: ((t.in_cents + t.out_cents) / maxTrend * 100) + '%' }" />
+          <div class="bar-fill" :style="{ width: barPct(t) + '%', background: t.net >= 0 ? 'var(--pos)' : 'var(--neg)' }" />
         </div>
-        <span class="muted fs-xs tnum" style="width:74px; text-align:right">¥{{ toYuan(t.in_cents + t.out_cents) }}</span>
+        <span class="fs-xs tnum" :class="t.net >= 0 ? 'pos' : 'neg'" style="width:90px; text-align:right">{{ t.net >= 0 ? '+' : '' }}¥{{ toYuan(t.net) }}</span>
       </div>
     </template>
   </div>

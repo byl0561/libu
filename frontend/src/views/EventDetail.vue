@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api, toYuan, toCents } from '../api.js'
 import { catMeta, catLabel, dirLabel, subLabel } from '../utils.js'
-import { store, ensureLookups } from '../store.js'
+import { store, ensureLookups, askConfirm } from '../store.js'
 import Icon from '../components/Icon.vue'
 import Sheet from '../components/Sheet.vue'
 import EditEventSheet from '../components/EditEventSheet.vue'
@@ -94,7 +94,13 @@ async function submit() {
 }
 
 async function delRecord(r) {
-  if (!confirm('删除这笔记录？删除后不可恢复')) return
+  const ok = await askConfirm({
+    title: '删除流水',
+    message: '删除这笔记录？删除后不可恢复。',
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   await api.deleteRecord(r.id)
   await load()
 }

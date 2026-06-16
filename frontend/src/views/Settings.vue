@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { api } from '../api.js'
-import { reloadMembers } from '../store.js'
+import { reloadMembers, askConfirm } from '../store.js'
 import Icon from '../components/Icon.vue'
 
 const members = ref([])
@@ -21,7 +21,13 @@ async function rename(m) {
   if (name && name.trim()) { await api.updateMember(m.id, { name: name.trim() }); await load(); reloadMembers() }
 }
 async function del(m) {
-  if (!confirm(`删除成员「${m.name}」？有记账引用则不可删，删除后不可恢复`)) return
+  const ok = await askConfirm({
+    title: '删除成员',
+    message: `删除「${m.name}」？有记账引用则不可删，删除后不可恢复。`,
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   try { await api.deleteMember(m.id); await load(); reloadMembers() } catch (e) { /* toast */ }
 }
 </script>

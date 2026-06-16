@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { api } from '../api.js'
+import { askConfirm } from '../store.js'
 import { CATS, catMeta, dirLabel, dirOptions } from '../utils.js'
 import Sheet from './Sheet.vue'
 import Segmented from './Segmented.vue'
@@ -35,7 +36,13 @@ async function save() {
 }
 
 async function remove() {
-  if (!confirm('删除整个事件？仅当没有流水时可删，删除后不可恢复')) return
+  const ok = await askConfirm({
+    title: '删除事件',
+    message: '仅当事件下没有流水时可删，删除后不可恢复。',
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   try { await api.deleteEvent(props.event.id); close(); emit('deleted') } catch (e) { /* toast */ }
 }
 </script>

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { api } from '../api.js'
+import { askConfirm } from '../store.js'
 import { CATS, catLabel, catMeta, initials } from '../utils.js'
 import Icon from '../components/Icon.vue'
 import Sheet from '../components/Sheet.vue'
@@ -78,7 +79,13 @@ async function doMerge() {
 }
 
 async function doDelete() {
-  if (!confirm(`删除「${edit.value.name}」？有往来记录则不可删，删除后不可恢复`)) return
+  const ok = await askConfirm({
+    title: '删除往来对象',
+    message: `删除「${edit.value.name}」？有往来记录则不可删，删除后不可恢复。`,
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   try {
     await api.deleteCounterparty(edit.value.id)
     edit.value.open = false

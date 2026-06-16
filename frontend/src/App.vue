@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Icon from './components/Icon.vue'
 import CreateEventSheet from './components/CreateEventSheet.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
 import { ui, openCreate } from './store.js'
 
 const route = useRoute()
@@ -78,6 +79,9 @@ const isActive = (to) => (to === '/' ? route.path === '/' : route.path.startsWit
     <button class="fab" @click="openCreate"><Icon name="plus" :size="26" /></button>
 
     <CreateEventSheet v-model="ui.createOpen" />
+
+    <!-- Global confirm dialog -->
+    <ConfirmDialog />
 
     <!-- Toasts -->
     <div class="toast-wrap">

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { api } from '../api.js'
+import { askConfirm } from '../store.js'
 
 const list = ref([])
 const loading = ref(true)
@@ -63,7 +64,13 @@ async function doMerge() {
 }
 
 async function del(cp) {
-  if (!confirm(`删除「${cp.name}」？有往来记录则不可删，删除后不可恢复`)) return
+  const ok = await askConfirm({
+    title: '删除往来对象',
+    message: `删除「${cp.name}」？有往来记录则不可删，删除后不可恢复。`,
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   try {
     await api.deleteCounterparty(cp.id)
     load()

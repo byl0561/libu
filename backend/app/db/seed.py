@@ -3,7 +3,6 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.db.base import Base, SessionLocal, engine
-from app.db.migrate import migrate
 from app.models import Member
 
 # Subtype options live in code (not a DB table); the frontend reads these for dropdowns.
@@ -15,7 +14,6 @@ SUBTYPES = {
 
 
 def init_db() -> None:
-    migrate()  # upgrade an existing DB in place before creating any new tables
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         existing = db.scalar(select(Member).limit(1))
