@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { api } from '../api.js'
 import { askConfirm } from '../store.js'
+import Select from '../components/Select.vue'
 
 const list = ref([])
 const loading = ref(true)
@@ -146,12 +147,12 @@ async function del(cp) {
       <h3>把另一个对象并入「{{ action.cp.name }}」</h3>
       <p class="muted">被并入方的往来历史会合并过来，被并入方随后会被删除。</p>
       <label>选择要并入的对象</label>
-      <select v-model="mergeForm.from_id">
-        <option :value="null">—</option>
-        <option v-for="c in list.filter((x) => x.id !== action.cp.id)" :key="c.id" :value="c.id">
-          {{ c.name }}
-        </option>
-      </select>
+      <Select
+        searchable
+        v-model="mergeForm.from_id"
+        placeholder="选择对象…"
+        :options="list.filter((x) => x.id !== action.cp.id).map((c) => ({ value: c.id, label: c.name }))"
+      />
       <label>合并后家庭名</label>
       <input v-model="mergeForm.household_name" />
       <div class="row" style="gap:10px; margin-top:16px">

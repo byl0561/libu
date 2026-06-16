@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { api, toYuan } from '../api.js'
 import Icon from '../components/Icon.vue'
 import Illustration from '../components/Illustration.vue'
+import Select from '../components/Select.vue'
 
 const year = ref(new Date().getFullYear())
 const ov = ref(null)
@@ -44,9 +45,7 @@ const mLabel = (m) => m + '月'
 <template>
   <div class="phead">
     <div><h1>统计</h1><div class="sub">三笔账的全貌</div></div>
-    <select class="select" style="width:auto" v-model="year" @change="load">
-      <option v-for="y in [year, year - 1, year - 2]" :key="y" :value="y">{{ y }} 年</option>
-    </select>
+    <Select style="width:auto" v-model="year" :options="[year, year - 1, year - 2].map((y) => ({ value: y, label: y + ' 年' }))" @change="load" />
   </div>
 
   <div v-if="ov" class="stats-grid">

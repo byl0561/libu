@@ -16,6 +16,7 @@ const ICONS = {
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   back: '<path d="M15 5l-7 7 7 7"/>',
   right: '<path d="M9 6l6 6-6 6"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
   trash: '<path d="M4 7h16M9.5 7V5h5v2M6.5 7l1 13h9l1-13"/>',
   archive: '<rect x="3.5" y="4.5" width="17" height="4.5" rx="1.4"/><path d="M5.5 9v10.5h13V9M10 13h4"/>',

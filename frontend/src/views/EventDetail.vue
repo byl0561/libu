@@ -6,6 +6,7 @@ import { catMeta, catLabel, dirLabel, subLabel } from '../utils.js'
 import { store, ensureLookups, askConfirm } from '../store.js'
 import Icon from '../components/Icon.vue'
 import Sheet from '../components/Sheet.vue'
+import Select from '../components/Select.vue'
 import EditEventSheet from '../components/EditEventSheet.vue'
 
 const route = useRoute()
@@ -26,6 +27,8 @@ const subtypeOpts = computed(() => (event.value ? store.meta.subtypes[event.valu
 const members = computed(() => store.members)
 // 对象字段的上下文标签
 const cpLabel = computed(() => ({ gift: '往来对象', child: '孩子', parents: '父母' }[event.value?.category] || '对象'))
+const cpOptions = computed(() => counterparties.value.map((c) => ({ value: c.id, label: c.name })))
+const memberOptions = computed(() => members.value.map((m) => ({ value: m.id, label: m.name })))
 const cpName = (cid) => counterparties.value.find((c) => c.id === cid)?.name || '—'
 const memberName = (mid) => members.value.find((m) => m.id === mid)?.name
 
@@ -151,10 +154,7 @@ const editOpen = ref(false)
           <div class="field">
             <label>{{ cpLabel }}</label>
             <div class="field-row">
-              <select class="select" v-model="d.counterparty_id">
-                <option :value="null" disabled>选择…</option>
-                <option v-for="c in counterparties" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
+              <Select searchable v-model="d.counterparty_id" placeholder="选择…" :options="cpOptions" />
               <button class="btn ghost sm" @click="openAddCp(i)"><Icon name="plus" :size="16" /></button>
             </div>
           </div>
@@ -169,9 +169,7 @@ const editOpen = ref(false)
           <div class="grid2">
             <div class="field" style="margin-top:10px">
               <label>记账人</label>
-              <select class="select" v-model="d.member_id">
-                <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
-              </select>
+              <Select v-model="d.member_id" placeholder="选择记账人" :options="memberOptions" />
             </div>
             <div class="field" style="margin-top:10px">
               <label>备注</label>

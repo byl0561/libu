@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { api } from '../api.js'
-import { reloadMembers, askConfirm } from '../store.js'
+import { reloadMembers, askConfirm, askPrompt } from '../store.js'
 import Icon from '../components/Icon.vue'
 
 const members = ref([])
@@ -17,8 +17,8 @@ async function add() {
   await load(); reloadMembers()
 }
 async function rename(m) {
-  const name = prompt('改名', m.name)
-  if (name && name.trim()) { await api.updateMember(m.id, { name: name.trim() }); await load(); reloadMembers() }
+  const name = await askPrompt({ title: '重命名成员', value: m.name, placeholder: '成员名', confirmText: '保存' })
+  if (name) { await api.updateMember(m.id, { name }); await load(); reloadMembers() }
 }
 async function del(m) {
   const ok = await askConfirm({

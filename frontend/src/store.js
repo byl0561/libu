@@ -15,6 +15,9 @@ export const confirmState = reactive({
   confirmText: '确定',
   cancelText: '取消',
   danger: false,
+  prompt: false, // when true, show a text input and resolve its value (or null)
+  value: '',
+  placeholder: '',
   _resolve: null,
 })
 
@@ -25,6 +28,23 @@ export function askConfirm(opts = {}) {
     confirmState.confirmText = opts.confirmText || '确定'
     confirmState.cancelText = opts.cancelText || '取消'
     confirmState.danger = opts.danger ?? false
+    confirmState.prompt = false
+    confirmState._resolve = resolve
+    confirmState.open = true
+  })
+}
+
+// Themed replacement for window.prompt(): resolves the entered string, or null on cancel.
+export function askPrompt(opts = {}) {
+  return new Promise((resolve) => {
+    confirmState.title = opts.title || '输入'
+    confirmState.message = opts.message || ''
+    confirmState.confirmText = opts.confirmText || '确定'
+    confirmState.cancelText = opts.cancelText || '取消'
+    confirmState.danger = false
+    confirmState.prompt = true
+    confirmState.value = opts.value || ''
+    confirmState.placeholder = opts.placeholder || ''
     confirmState._resolve = resolve
     confirmState.open = true
   })

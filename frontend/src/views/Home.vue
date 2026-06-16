@@ -5,9 +5,11 @@ import { api, toYuan } from '../api.js'
 import { catMeta, catLabel, dirLabel } from '../utils.js'
 import Icon from '../components/Icon.vue'
 import Illustration from '../components/Illustration.vue'
+import Select from '../components/Select.vue'
 
 const router = useRouter()
 const year = ref(new Date().getFullYear())
+const yearOptions = computed(() => [year.value, year.value - 1, year.value - 2].map((y) => ({ value: y, label: y + ' 年' })))
 const ov = ref(null)
 const recent = ref([])
 const loading = ref(true)
@@ -31,9 +33,7 @@ const evAmount = (e) => `${dirLabel(e.direction)} ¥${toYuan(e.in_cents + e.out_
       <div class="hero-title">礼簿</div>
       <div class="hero-sub">中国家庭只记三笔账 · 人情往来 · 子女 · 父母</div>
       <span class="yearsel">
-        <select v-model="year" @change="load">
-          <option v-for="y in [year, year - 1, year - 2]" :key="y" :value="y">{{ y }} 年</option>
-        </select>
+        <Select plain v-model="year" :options="yearOptions" @change="load" />
       </span>
     </div>
   </div>

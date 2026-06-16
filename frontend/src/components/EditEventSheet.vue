@@ -6,6 +6,7 @@ import { CATS, catMeta, dirLabel, dirOptions } from '../utils.js'
 import Sheet from './Sheet.vue'
 import Segmented from './Segmented.vue'
 import Icon from './Icon.vue'
+import DatePicker from './DatePicker.vue'
 
 const props = defineProps({ modelValue: Boolean, event: Object })
 const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
@@ -53,9 +54,9 @@ async function remove() {
 
     <div class="field">
       <label>日期</label>
-      <input class="input" type="date" v-model="f.occurred_at" />
-      <label style="display:flex; align-items:center; gap:8px; margin-top:8px; color:var(--ink-2)">
-        <input type="checkbox" v-model="f.sync_dates" style="width:auto" />
+      <DatePicker v-model="f.occurred_at" />
+      <label style="display:flex; align-items:center; gap:8px; margin-top:10px; color:var(--ink-2); cursor:pointer">
+        <input type="checkbox" class="check" v-model="f.sync_dates" />
         同时把沿用原日期的流水一起改到新日期
       </label>
     </div>

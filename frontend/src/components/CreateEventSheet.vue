@@ -5,6 +5,7 @@ import { api } from '../api.js'
 import { CATS, dirOptions, today } from '../utils.js'
 import Sheet from './Sheet.vue'
 import Segmented from './Segmented.vue'
+import DatePicker from './DatePicker.vue'
 
 const props = defineProps({ modelValue: Boolean })
 const emit = defineEmits(['update:modelValue'])
@@ -56,7 +57,7 @@ async function submit() {
     </div>
 
     <div class="grid2">
-      <div class="field"><label>日期</label><input class="input" type="date" v-model="form.occurred_at" /></div>
+      <div class="field"><label>日期</label><DatePicker v-model="form.occurred_at" /></div>
       <div class="field"><label>备注（可选）</label><input class="input" v-model="form.note" /></div>
     </div>
 

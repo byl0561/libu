@@ -5,6 +5,7 @@ import { askConfirm } from '../store.js'
 import { CATS, catLabel, catMeta, initials } from '../utils.js'
 import Icon from '../components/Icon.vue'
 import Sheet from '../components/Sheet.vue'
+import Select from '../components/Select.vue'
 import Segmented from '../components/Segmented.vue'
 import Illustration from '../components/Illustration.vue'
 
@@ -200,10 +201,12 @@ async function doDelete() {
     <p class="muted fs-sm" style="margin-top:0">把另一个对象并入「{{ merge.cp?.name }}」，往来历史合并过来，被并入方随后会被删除。</p>
     <div class="field">
       <label>选择要并入的对象</label>
-      <select class="select" v-model="merge.from_id">
-        <option :value="null">—</option>
-        <option v-for="c in list.filter((x) => x.id !== merge.cp?.id && x.category === merge.cp?.category)" :key="c.id" :value="c.id">{{ c.name }}</option>
-      </select>
+      <Select
+        searchable
+        v-model="merge.from_id"
+        placeholder="选择对象…"
+        :options="list.filter((x) => x.id !== merge.cp?.id && x.category === merge.cp?.category).map((c) => ({ value: c.id, label: c.name }))"
+      />
     </div>
     <div class="field"><label>合并后家庭名</label><input class="input" v-model="merge.household_name" /></div>
     <template #foot>
