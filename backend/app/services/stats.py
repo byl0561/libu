@@ -36,7 +36,6 @@ def gift_ledger(db: Session, category: Optional[str] = None,
             func.max(Record.occurred_at).label("last_at"),
         )
         .join(Record, Record.counterparty_id == Counterparty.id)
-        .where(Record.deleted_at.is_(None))
         .group_by(Counterparty.id)
         .order_by(func.max(Record.occurred_at).desc())
     )
@@ -71,7 +70,7 @@ def overview(db: Session, year: Optional[int], month: Optional[int]):
         Record.category,
         Record.direction,
         func.coalesce(func.sum(Record.amount_cents), 0),
-    ).where(Record.deleted_at.is_(None))
+    )
     if year:
         stmt = stmt.where(func.strftime("%Y", Record.occurred_at) == str(year))
     if month:

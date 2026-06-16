@@ -94,7 +94,7 @@ async function submit() {
 }
 
 async function delRecord(r) {
-  if (!confirm('删除这笔记录？')) return
+  if (!confirm('删除这笔记录？删除后不可恢复')) return
   await api.deleteRecord(r.id)
   await load()
 }
@@ -120,7 +120,6 @@ const editOpen = ref(false)
             <span class="pill soft" :class="event.category">
               {{ catLabel(event.category) }} · {{ dirLabel(event.direction) }}
             </span>
-            <span v-if="event.is_closed" class="chip">已归档</span>
           </div>
           <div class="muted fs-sm" style="margin-top:4px">{{ event.occurred_at }} · 共 {{ event.record_count }} 笔</div>
         </div>
@@ -134,8 +133,7 @@ const editOpen = ref(false)
     </div>
 
     <!-- batch entry -->
-    <template v-if="!event.is_closed">
-      <div class="shead"><h2>记一笔</h2><span class="muted fs-sm" v-if="draftTotal">本次 ¥{{ toYuan(draftTotal) }}</span></div>
+    <div class="shead"><h2>记一笔</h2><span class="muted fs-sm" v-if="draftTotal">本次 ¥{{ toYuan(draftTotal) }}</span></div>
       <div class="card">
         <div v-for="(d, i) in drafts" :key="i" class="draft">
           <div class="draft-main">
@@ -182,7 +180,6 @@ const editOpen = ref(false)
           <button class="btn" style="flex:1.6" @click="submit"><Icon name="check" :size="16" /> 保存</button>
         </div>
       </div>
-    </template>
 
     <!-- existing records -->
     <div class="shead"><h2>已记 {{ records.length }} 笔</h2></div>

@@ -29,7 +29,7 @@ def reference_count(db: Session, counterparty_id: int) -> int:
     return db.scalar(
         select(func.count())
         .select_from(Record)
-        .where(Record.counterparty_id == counterparty_id, Record.deleted_at.is_(None))
+        .where(Record.counterparty_id == counterparty_id)
     ) or 0
 
 
@@ -60,7 +60,7 @@ def convert_to_household(
 
 
 def merge(db: Session, target: Counterparty, from_id: int, household_name: Optional[str]) -> Counterparty:
-    """Merge `from_id` into `target`: repoint records, fold in persons/tags, deactivate source."""
+    """Merge `from_id` into `target`: repoint records, fold in persons/tags, delete source."""
     if from_id == target.id:
         raise HTTPException(status_code=400, detail="不能与自身合并")
     source = db.get(Counterparty, from_id)
@@ -94,9 +94,10 @@ def merge(db: Session, target: Counterparty, from_id: int, household_name: Optio
         synchronize_session=False
     )
 
-    # 4. upgrade target, deactivate source (hidden from lists, records repointed away)
+    # 4. upgrade target and delete the source (its records/tags are repointed away,
+    #    its persons cascade-delete) — 所见即所得, no hidden leftovers.
     target.kind = "household"
     target.name = household_name or target.name
-    source.is_active = False
+    db.delete(source)
     db.flush()
     return target

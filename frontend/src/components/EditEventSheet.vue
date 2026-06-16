@@ -16,7 +16,7 @@ watch(() => props.modelValue, (v) => {
     f.value = {
       name: e.name, occurred_at: e.occurred_at, note: e.note || '',
       category: e.category, direction: e.direction,
-      record_count: e.record_count ?? 0, is_closed: e.is_closed, sync_dates: false,
+      record_count: e.record_count ?? 0, sync_dates: false,
     }
   }
 })
@@ -25,7 +25,7 @@ const close = () => emit('update:modelValue', false)
 
 async function save() {
   if (!f.value.name.trim()) return window.__libuToast('请填写事件名', 'error')
-  const p = { name: f.value.name, occurred_at: f.value.occurred_at, note: f.value.note || null, is_closed: f.value.is_closed }
+  const p = { name: f.value.name, occurred_at: f.value.occurred_at, note: f.value.note || null }
   if (f.value.record_count === 0) { p.category = f.value.category; p.direction = f.value.direction }
   if (f.value.sync_dates) p.sync_record_dates = true
   await api.updateEvent(props.event.id, p)
@@ -35,7 +35,7 @@ async function save() {
 }
 
 async function remove() {
-  if (!confirm('删除整个事件？仅当没有流水时可删')) return
+  if (!confirm('删除整个事件？仅当没有流水时可删，删除后不可恢复')) return
   try { await api.deleteEvent(props.event.id); close(); emit('deleted') } catch (e) { /* toast */ }
 }
 </script>
@@ -66,11 +66,6 @@ async function remove() {
     </div>
 
     <div class="field"><label>备注</label><input class="input" v-model="f.note" placeholder="可选" /></div>
-
-    <div class="row between" style="margin-top:16px; padding:12px 14px; background:var(--surface-2); border-radius:12px">
-      <span class="fs-sm">{{ f.is_closed ? '已归档 · 不能再加流水' : '进行中' }}</span>
-      <button class="btn ghost sm" @click="f.is_closed = !f.is_closed">{{ f.is_closed ? '重开' : '归档' }}</button>
-    </div>
 
     <button class="btn block" style="background:transparent; color:var(--neg); border:1px solid var(--line); margin-top:12px" @click="remove">
       <Icon name="trash" :size="16" /> 删除事件

@@ -71,10 +71,7 @@ function openEdit(e) { ed.value = { open: true, event: e } }
         <div v-for="e in list" :key="e.id" class="litem" style="cursor:pointer" @click="router.push(`/events/${e.id}`)">
           <div class="avatar" :style="{ background: catMeta(e.category).color }"><Icon :name="catMeta(e.category).icon" :size="19" /></div>
           <div class="grow">
-            <div class="name">
-              {{ e.name }}
-              <span v-if="e.is_closed" class="tag" style="margin-left:6px">已归档</span>
-            </div>
+            <div class="name">{{ e.name }}</div>
             <div class="muted fs-sm">{{ e.occurred_at }} · {{ e.record_count }} 笔</div>
           </div>
           <div class="row" style="gap:4px">

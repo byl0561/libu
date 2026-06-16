@@ -24,12 +24,9 @@ def list_counterparties(
     relation: Optional[str] = None,
     tag: Optional[str] = None,
     q: Optional[str] = None,
-    include_inactive: bool = False,
     db: Session = Depends(get_db),
 ):
     stmt = select(Counterparty)
-    if not include_inactive:
-        stmt = stmt.where(Counterparty.is_active.is_(True))
     if category:
         stmt = stmt.where(Counterparty.category == category)
     if kind:

@@ -15,7 +15,6 @@ Kind = Literal["person", "household"]
 class MemberBase(BaseModel):
     name: str = Field(min_length=1, max_length=50)
     sort: int = 0
-    is_active: bool = True
 
 
 class MemberCreate(MemberBase):
@@ -25,7 +24,6 @@ class MemberCreate(MemberBase):
 class MemberUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=50)
     sort: Optional[int] = None
-    is_active: Optional[bool] = None
 
 
 class MemberOut(MemberBase):
@@ -74,7 +72,6 @@ class CounterpartyUpdate(BaseModel):
     kind: Optional[Kind] = None
     relation: Optional[str] = Field(default=None, max_length=30)
     note: Optional[str] = Field(default=None, max_length=255)
-    is_active: Optional[bool] = None
     persons: Optional[list[PersonIn]] = None
     tags: Optional[list[str]] = None
 
@@ -82,7 +79,6 @@ class CounterpartyUpdate(BaseModel):
 class CounterpartyOut(CounterpartyBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    is_active: bool
     persons: list[PersonOut] = []
     tags: list[TagOut] = []
 
@@ -115,7 +111,6 @@ class EventUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=80)
     occurred_at: Optional[date] = None
     note: Optional[str] = Field(default=None, max_length=255)
-    is_closed: Optional[bool] = None
     category: Optional[Category] = None
     direction: Optional[Direction] = None
     sync_record_dates: bool = False
@@ -124,7 +119,6 @@ class EventUpdate(BaseModel):
 class EventOut(EventBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    is_closed: bool
 
 
 class EventSummary(EventOut):

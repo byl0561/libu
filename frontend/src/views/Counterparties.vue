@@ -63,15 +63,11 @@ async function doMerge() {
 }
 
 async function del(cp) {
-  if (!confirm(`删除「${cp.name}」？有往来记录则不可删`)) return
+  if (!confirm(`删除「${cp.name}」？有往来记录则不可删，删除后不可恢复`)) return
   try {
     await api.deleteCounterparty(cp.id)
     load()
   } catch (e) { /* toast via interceptor */ }
-}
-async function hide(cp) {
-  await api.updateCounterparty(cp.id, { is_active: false })
-  load()
 }
 </script>
 
@@ -100,7 +96,6 @@ async function hide(cp) {
     <div class="row" style="gap:6px; margin-top:10px; flex-wrap:wrap">
       <button v-if="cp.kind === 'person'" class="ghost sm" @click="openConvert(cp)">结婚→家庭</button>
       <button class="ghost sm" @click="openMerge(cp)">合并</button>
-      <button class="ghost sm" @click="hide(cp)">隐藏</button>
       <button class="danger sm" @click="del(cp)">删除</button>
     </div>
   </div>
@@ -142,7 +137,7 @@ async function hide(cp) {
     </div>
     <div class="modal" v-else>
       <h3>把另一个对象并入「{{ action.cp.name }}」</h3>
-      <p class="muted">被并入方的往来历史会合并过来，并标记为隐藏。</p>
+      <p class="muted">被并入方的往来历史会合并过来，被并入方随后会被删除。</p>
       <label>选择要并入的对象</label>
       <select v-model="mergeForm.from_id">
         <option :value="null">—</option>

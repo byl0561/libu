@@ -16,25 +16,24 @@ def overview(year: Optional[int] = None, month: Optional[int] = None, db: Sessio
 
 
 @router.get("/trend")
-def trend(category: Optional[str] = None, months: int = 12, db: Session = Depends(get_db)):
-    """Monthly totals (out, and in for gift) for the last N months."""
+def trend(year: int, category: Optional[str] = None, db: Session = Depends(get_db)):
+    """Per-month totals (in/out) for a single year. Returns only months with data
+    (keyed "01".."12"); the client fills missing months with 0 and orders them."""
     stmt = (
         select(
-            func.strftime("%Y-%m", Record.occurred_at).label("ym"),
+            func.strftime("%m", Record.occurred_at).label("m"),
             Record.direction,
             func.coalesce(func.sum(Record.amount_cents), 0),
         )
-        .where(Record.deleted_at.is_(None))
-        .group_by("ym", Record.direction)
-        .order_by("ym")
+        .where(func.strftime("%Y", Record.occurred_at) == str(year))
+        .group_by("m", Record.direction)
     )
     if category:
         stmt = stmt.where(Record.category == category)
     buckets: dict[str, dict[str, int]] = {}
-    for ym, direction, total in db.execute(stmt).all():
-        buckets.setdefault(ym, {"in_cents": 0, "out_cents": 0})[f"{direction}_cents"] = int(total)
-    series = [{"month": ym, **vals} for ym, vals in sorted(buckets.items())]
-    return series[-months:]
+    for m, direction, total in db.execute(stmt).all():
+        buckets.setdefault(m, {"in_cents": 0, "out_cents": 0})[f"{direction}_cents"] = int(total)
+    return [{"month": m, **vals} for m, vals in sorted(buckets.items())]
 
 
 @router.get("/by-member")
@@ -46,7 +45,6 @@ def by_member(db: Session = Depends(get_db)):
             func.count(Record.id),
         )
         .join(Record, Record.member_id == Member.id)
-        .where(Record.deleted_at.is_(None))
         .group_by(Member.id)
         .order_by(func.sum(Record.amount_cents).desc())
     ).all()

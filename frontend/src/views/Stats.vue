@@ -12,15 +12,29 @@ const byMember = ref([])
 async function load() {
   ;[ov.value, trend.value, byMember.value] = await Promise.all([
     api.overview({ year: year.value }),
-    api.trend({ months: 12 }),
+    api.trend({ year: year.value }),
     api.byMember(),
   ])
 }
 onMounted(load)
 
-const maxTrend = computed(() => Math.max(1, ...trend.value.map((t) => t.in_cents + t.out_cents)))
-const memberMax = computed(() => Math.max(1, ...byMember.value.map((m) => m.total_cents)))
-const mLabel = (ym) => ym.slice(5) + '月'
+// Current year shows Jan..current month (已经过去的月份); past years show all 12.
+// Always descending, missing months filled with 0 — so no dup/out-of-order months.
+const trendRows = computed(() => {
+  const now = new Date()
+  const lastMonth = year.value === now.getFullYear() ? now.getMonth() + 1 : 12
+  const byMonth = Object.fromEntries(trend.value.map((t) => [t.month, t]))
+  const rows = []
+  for (let m = lastMonth; m >= 1; m--) {
+    const mm = String(m).padStart(2, '0')
+    rows.push(byMonth[mm] || { month: mm, in_cents: 0, out_cents: 0 })
+  }
+  return rows
+})
+const maxTrend = computed(() => Math.max(1, ...trendRows.value.map((t) => t.in_cents + t.out_cents)))
+// Bar = this member's share of the total record count.
+const memberTotal = computed(() => byMember.value.reduce((s, m) => s + m.count, 0) || 1)
+const mLabel = (m) => m + '月'
 </script>
 
 <template>
@@ -37,19 +51,21 @@ const mLabel = (ym) => ym.slice(5) + '月'
     <div class="stat parents"><div class="k"><Icon name="heart" :size="15" /> 父母净额</div><div class="v tnum">{{ ov.parents.net_cents >= 0 ? '+' : '' }}¥{{ toYuan(ov.parents.net_cents) }}</div><div class="x">收 ¥{{ toYuan(ov.parents.in_cents) }} · 送 ¥{{ toYuan(ov.parents.out_cents) }}</div></div>
   </div>
 
-  <div class="shead"><h2>近 12 个月趋势</h2></div>
+  <div class="shead"><h2>本年度趋势</h2></div>
   <div class="card">
     <div v-if="!trend.length" class="empty" style="padding:30px 20px">
       <Illustration name="chart" :size="62" />
       <div class="fs-sm">还没有趋势数据</div>
     </div>
-    <div v-for="t in trend" :key="t.month" class="row" style="gap:10px; margin:9px 0">
-      <span class="muted fs-xs" style="width:46px">{{ mLabel(t.month) }}</span>
-      <div class="bar-track">
-        <div class="bar-fill" :style="{ width: ((t.in_cents + t.out_cents) / maxTrend * 100) + '%' }" />
+    <template v-else>
+      <div v-for="t in trendRows" :key="t.month" class="row" style="gap:10px; margin:9px 0">
+        <span class="muted fs-xs" style="width:46px">{{ mLabel(t.month) }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" :style="{ width: ((t.in_cents + t.out_cents) / maxTrend * 100) + '%' }" />
+        </div>
+        <span class="muted fs-xs tnum" style="width:74px; text-align:right">¥{{ toYuan(t.in_cents + t.out_cents) }}</span>
       </div>
-      <span class="muted fs-xs tnum" style="width:74px; text-align:right">¥{{ toYuan(t.in_cents + t.out_cents) }}</span>
-    </div>
+    </template>
   </div>
 
   <template v-if="byMember.length">
@@ -57,7 +73,7 @@ const mLabel = (ym) => ym.slice(5) + '月'
     <div class="card">
       <div v-for="m in byMember" :key="m.member" class="row" style="gap:10px; margin:9px 0">
         <span class="muted fs-xs" style="width:46px">{{ m.member }}</span>
-        <div class="bar-track"><div class="bar-fill" :style="{ width: (m.total_cents / memberMax * 100) + '%', background: 'var(--parents)' }" /></div>
+        <div class="bar-track"><div class="bar-fill" :style="{ width: (m.count / memberTotal * 100) + '%', background: 'var(--parents)' }" /></div>
         <span class="muted fs-xs tnum" style="width:74px; text-align:right">{{ m.count }}笔</span>
       </div>
     </div>

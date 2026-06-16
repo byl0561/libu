@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import date, datetime
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -25,7 +25,7 @@ def list_records(
     q: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
-    stmt = select(Record).where(Record.deleted_at.is_(None))
+    stmt = select(Record)
     if event_id:
         stmt = stmt.where(Record.event_id == event_id)
     if category:
@@ -50,8 +50,6 @@ def create_record(payload: RecordCreate, db: Session = Depends(get_db)):
     event = db.get(Event, payload.event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="事件不存在")
-    if event.is_closed:
-        raise HTTPException(status_code=409, detail="事件已归档，不能再加流水")
     validate_for_event(db, event, payload.counterparty_id, payload.member_id)
     rec = Record(
         event_id=event.id,
@@ -73,7 +71,7 @@ def create_record(payload: RecordCreate, db: Session = Depends(get_db)):
 @router.get("/{record_id}", response_model=RecordOut)
 def get_record(record_id: int, db: Session = Depends(get_db)):
     rec = db.get(Record, record_id)
-    if rec is None or rec.deleted_at is not None:
+    if rec is None:
         raise HTTPException(status_code=404, detail="记录不存在")
     return rec
 
@@ -81,7 +79,7 @@ def get_record(record_id: int, db: Session = Depends(get_db)):
 @router.patch("/{record_id}", response_model=RecordOut)
 def update_record(record_id: int, payload: RecordUpdate, db: Session = Depends(get_db)):
     rec = db.get(Record, record_id)
-    if rec is None or rec.deleted_at is not None:
+    if rec is None:
         raise HTTPException(status_code=404, detail="记录不存在")
     data = payload.model_dump(exclude_unset=True)
 
@@ -111,7 +109,7 @@ def update_record(record_id: int, payload: RecordUpdate, db: Session = Depends(g
 @router.delete("/{record_id}", status_code=204)
 def delete_record(record_id: int, db: Session = Depends(get_db)):
     rec = db.get(Record, record_id)
-    if rec is None or rec.deleted_at is not None:
+    if rec is None:
         raise HTTPException(status_code=404, detail="记录不存在")
-    rec.deleted_at = datetime.utcnow()
+    db.delete(rec)
     db.commit()

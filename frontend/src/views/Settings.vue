@@ -7,7 +7,7 @@ import Icon from '../components/Icon.vue'
 const members = ref([])
 const newName = ref('')
 
-async function load() { members.value = await api.members(true) }
+async function load() { members.value = await api.members() }
 onMounted(load)
 
 async function add() {
@@ -20,9 +20,8 @@ async function rename(m) {
   const name = prompt('改名', m.name)
   if (name && name.trim()) { await api.updateMember(m.id, { name: name.trim() }); await load(); reloadMembers() }
 }
-async function toggle(m) { await api.updateMember(m.id, { is_active: !m.is_active }); await load(); reloadMembers() }
 async function del(m) {
-  if (!confirm(`删除成员「${m.name}」？有记账引用则不可删`)) return
+  if (!confirm(`删除成员「${m.name}」？有记账引用则不可删，删除后不可恢复`)) return
   try { await api.deleteMember(m.id); await load(); reloadMembers() } catch (e) { /* toast */ }
 }
 </script>
@@ -35,9 +34,8 @@ async function del(m) {
     <p class="muted fs-sm" style="margin:0 0 8px">记账时下拉手选「谁记的」。访问控制由 nginx 用户名密码负责，这里不是登录账号。</p>
     <div v-for="m in members" :key="m.id" class="litem">
       <div class="avatar neutral round" style="width:34px;height:34px;font-size:13px">{{ m.name.slice(0, 2) }}</div>
-      <div class="grow"><span class="name">{{ m.name }}</span><span class="muted fs-sm" v-if="!m.is_active"> · 已隐藏</span></div>
+      <div class="grow"><span class="name">{{ m.name }}</span></div>
       <button class="iconbtn" title="改名" @click="rename(m)"><Icon name="edit" :size="17" /></button>
-      <button class="iconbtn" :title="m.is_active ? '隐藏' : '恢复'" @click="toggle(m)"><Icon name="hide" :size="17" /></button>
       <button class="iconbtn" title="删除" @click="del(m)"><Icon name="trash" :size="17" /></button>
     </div>
     <div class="field-row" style="margin-top:12px">

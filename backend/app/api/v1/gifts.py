@@ -26,10 +26,7 @@ def ledger_detail(counterparty_id: int, db: Session = Depends(get_db)):
     rows = db.execute(
         select(Record, Event.name)
         .join(Event, Record.event_id == Event.id)
-        .where(
-            Record.counterparty_id == counterparty_id,
-            Record.deleted_at.is_(None),
-        )
+        .where(Record.counterparty_id == counterparty_id)
         .order_by(Record.occurred_at.desc(), Record.id.desc())
     ).all()
     return {
@@ -59,7 +56,7 @@ def by_relation(db: Session = Depends(get_db)):
             func.count(Record.id),
         )
         .join(Record, Record.counterparty_id == Counterparty.id)
-        .where(Record.category == "gift", Record.deleted_at.is_(None))
+        .where(Record.category == "gift")
         .group_by(Counterparty.relation)
     ).all()
     return [
@@ -78,7 +75,7 @@ def by_event(db: Session = Depends(get_db)):
             func.count(Record.id),
         )
         .join(Record, Record.event_id == Event.id)
-        .where(Record.category == "gift", Record.deleted_at.is_(None))
+        .where(Record.category == "gift")
         .group_by(Event.id)
         .order_by(func.sum(Record.amount_cents).desc())
     ).all()

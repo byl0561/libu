@@ -22,8 +22,7 @@ export const toCents = (yuan) => Math.round(parseFloat(yuan || '0') * 100)
 export const api = {
   meta: () => http.get('/meta').then((r) => r.data),
 
-  members: (includeInactive = false) =>
-    http.get('/members', { params: { include_inactive: includeInactive } }).then((r) => r.data),
+  members: () => http.get('/members').then((r) => r.data),
   createMember: (data) => http.post('/members', data).then((r) => r.data),
   updateMember: (id, data) => http.patch(`/members/${id}`, data).then((r) => r.data),
   deleteMember: (id) => http.delete(`/members/${id}`).then((r) => r.data),

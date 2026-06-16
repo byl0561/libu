@@ -26,7 +26,7 @@ def _summary_row(db: Session, event: Event) -> EventSummary:
             func.coalesce(func.sum(case((Record.direction == "in", Record.amount_cents), else_=0)), 0),
             func.coalesce(func.sum(case((Record.direction == "out", Record.amount_cents), else_=0)), 0),
             func.count(Record.id),
-        ).where(Record.event_id == event.id, Record.deleted_at.is_(None))
+        ).where(Record.event_id == event.id)
     ).one()
     data = EventSummary.model_validate(event)
     data.in_cents = int(in_sum)
@@ -76,7 +76,7 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="事件不存在")
     records = db.scalars(
         select(Record)
-        .where(Record.event_id == event_id, Record.deleted_at.is_(None))
+        .where(Record.event_id == event_id)
         .order_by(Record.occurred_at.desc(), Record.id.desc())
     ).all()
     return {
@@ -93,9 +93,7 @@ def update_event(event_id: int, payload: EventUpdate, db: Session = Depends(get_
     data = payload.model_dump(exclude_unset=True)
     sync_dates = data.pop("sync_record_dates", False)
     has_records = db.scalar(
-        select(func.count()).select_from(Record).where(
-            Record.event_id == event_id, Record.deleted_at.is_(None)
-        )
+        select(func.count()).select_from(Record).where(Record.event_id == event_id)
     )
 
     # category/direction are locked once records exist (they inherit from the event).
@@ -122,14 +120,12 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
     if event is None:
         raise HTTPException(status_code=404, detail="事件不存在")
     refs = db.scalar(
-        select(func.count()).select_from(Record).where(
-            Record.event_id == event_id, Record.deleted_at.is_(None)
-        )
+        select(func.count()).select_from(Record).where(Record.event_id == event_id)
     )
     if refs:
         raise HTTPException(
             status_code=409,
-            detail=f"事件下有 {refs} 笔流水，不能删除；不想要可归档(is_closed=true)",
+            detail=f"事件下有 {refs} 笔流水，不能删除（请先删除这些流水）",
         )
     db.delete(event)
     db.commit()
@@ -140,8 +136,6 @@ def batch_add_records(event_id: int, payload: RecordBatchCreate, db: Session = D
     event = db.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="事件不存在")
-    if event.is_closed:
-        raise HTTPException(status_code=409, detail="事件已归档，不能再加流水")
 
     created: list[Record] = []
     for item in payload.records:

@@ -10,11 +10,8 @@ router = APIRouter(prefix="/members", tags=["members"])
 
 
 @router.get("", response_model=list[MemberOut])
-def list_members(include_inactive: bool = False, db: Session = Depends(get_db)):
-    stmt = select(Member)
-    if not include_inactive:
-        stmt = stmt.where(Member.is_active.is_(True))
-    stmt = stmt.order_by(Member.sort, Member.id)
+def list_members(db: Session = Depends(get_db)):
+    stmt = select(Member).order_by(Member.sort, Member.id)
     return db.scalars(stmt).all()
 
 
@@ -48,7 +45,7 @@ def delete_member(member_id: int, db: Session = Depends(get_db)):
     if refs:
         raise HTTPException(
             status_code=409,
-            detail=f"该成员有 {refs} 笔记账引用，不能删除；如需从下拉去掉请改为隐藏(is_active=false)",
+            detail=f"该成员有 {refs} 笔记账引用，不能删除（请先删除或改派这些记账）",
         )
     db.delete(member)
     db.commit()

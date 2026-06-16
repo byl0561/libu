@@ -78,7 +78,7 @@ async function doMerge() {
 }
 
 async function doDelete() {
-  if (!confirm(`删除「${edit.value.name}」？有往来记录则不可删`)) return
+  if (!confirm(`删除「${edit.value.name}」？有往来记录则不可删，删除后不可恢复`)) return
   try {
     await api.deleteCounterparty(edit.value.id)
     edit.value.open = false
@@ -190,7 +190,7 @@ async function doDelete() {
 
   <!-- merge -->
   <Sheet v-model="merge.open" title="合并往来对象">
-    <p class="muted fs-sm" style="margin-top:0">把另一个对象并入「{{ merge.cp?.name }}」，往来历史合并过来，被并入方会被隐藏。</p>
+    <p class="muted fs-sm" style="margin-top:0">把另一个对象并入「{{ merge.cp?.name }}」，往来历史合并过来，被并入方随后会被删除。</p>
     <div class="field">
       <label>选择要并入的对象</label>
       <select class="select" v-model="merge.from_id">
