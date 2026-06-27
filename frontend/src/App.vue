@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import Icon from './components/Icon.vue'
 import CreateEventSheet from './components/CreateEventSheet.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
+import AppLogo from './components/AppLogo.vue'
 import { ui, openCreate } from './store.js'
 
 const route = useRoute()
@@ -40,7 +41,7 @@ const isActive = (to) => (to === '/' ? route.path === '/' : route.path.startsWit
     <!-- Desktop sidebar -->
     <aside class="sidebar">
       <div class="sb-brand">
-        <div class="logo">礼</div>
+        <div class="logo"><AppLogo /></div>
         <div>
           <div class="name">礼簿</div>
           <div class="tag">只记三笔账</div>

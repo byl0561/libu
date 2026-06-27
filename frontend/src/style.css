@@ -126,10 +126,13 @@ input, select, textarea, button { font: inherit; color: inherit; }
   }
   .sb-brand { display: flex; align-items: center; gap: 11px; padding: 6px 10px 20px; }
   .sb-brand .logo {
-    width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center;
-    background: linear-gradient(155deg, var(--brand), var(--brand-700)); color: #fff;
-    font-family: var(--serif); font-weight: 700; font-size: 21px;
-    box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.12), inset 0 0 0 3px rgba(255,255,255,.08);
+    width: 40px; height: 40px; border-radius: 11px;
+    background: linear-gradient(155deg, #c94a31, var(--brand-700));
+    padding: 3px;
+    box-shadow: var(--shadow-sm),
+                inset 0 1px 0 rgba(255,255,255,.22),
+                inset 0 -1px 0 rgba(0,0,0,.12),
+                0 0 0 1px rgba(0,0,0,.04);
   }
   .sb-brand .name { font-family: var(--serif); font-weight: 700; font-size: 19px; letter-spacing: 2px; }
   .sb-brand .tag { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
